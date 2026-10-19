@@ -3,12 +3,24 @@
 import { PLACES, SLOTS, DAYS_AHEAD } from './data.js';
 import { dateKey, parseKey, addDays } from './format.js';
 
+const DEFAULT_FILTERS = { seats: 1, price: 0 };
+
 export const state = {
   session: null,
-  filters: { seats: 1, price: 0 },
+  filters: { ...DEFAULT_FILTERS },
   selectedId: null,
   bookings: [],
 };
+
+const listeners = new Set();
+
+export function subscribe(listener) {
+  listeners.add(listener);
+}
+
+function emit() {
+  listeners.forEach((listener) => listener());
+}
 
 export const placeById = (id) => PLACES.find((place) => place.id === id);
 export const slotById = (id) => SLOTS.find((slot) => slot.id === id);
@@ -23,6 +35,14 @@ export function slotStarted(date, slotId, now = new Date()) {
   start.setHours(slotById(slotId).start);
   return now >= start;
 }
+
+export function slotEnded(date, slotId, now = new Date()) {
+  const end = parseKey(date);
+  end.setHours(slotById(slotId).end);
+  return now >= end;
+}
+
+export const dayOpen = (date, now = new Date()) => SLOTS.some((slot) => !slotStarted(date, slot.id, now));
 
 export function firstOpenSession(now = new Date()) {
   for (const date of dayKeys(now)) {
@@ -78,3 +98,38 @@ export function placeStatus(place) {
   if (isBusy(place.id)) return 'busy';
   return place.id === state.selectedId ? 'selected' : 'free';
 }
+
+// Повторное нажатие на выбранное место снимает выбор
+export function toggleSelect(id) {
+  const place = placeById(id);
+  if (!place || !matchesFilters(place) || isBusy(id)) return;
+  state.selectedId = state.selectedId === id ? null : id;
+  emit();
+}
+
+export function clearSelection() {
+  if (state.selectedId === null) return;
+  state.selectedId = null;
+  emit();
+}
+
+// Смена дня или слота; на сегодня начавшийся слот меняется на ближайший открытый
+export function setSession({ date = state.session.date, slot = state.session.slot }) {
+  const now = new Date();
+  if (!dayKeys(now).includes(date) || !dayOpen(date, now) || !slotById(slot)) return;
+  const open = slotStarted(date, slot, now) ? SLOTS.find((item) => !slotStarted(date, item.id, now)).id : slot;
+  state.session = { date, slot: open };
+  emit();
+}
+
+// Возвращает место, если фильтр скрыл выбранное и выбор пришлось снять
+export function setFilters(patch) {
+  state.filters = { ...state.filters, ...patch };
+  const selected = placeById(state.selectedId);
+  const hidden = selected && !matchesFilters(selected) ? selected : null;
+  if (hidden) state.selectedId = null;
+  emit();
+  return hidden;
+}
+
+export const resetFilters = () => setFilters(DEFAULT_FILTERS);

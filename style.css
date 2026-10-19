@@ -65,6 +65,174 @@
   }
 }
 
+/* ── День, время и фильтры ──────────────────────────────── */
+
+.controls {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.control {
+  display: grid;
+  align-content: start;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.control-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-0) var(--space-2);
+}
+
+.control-value {
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+/* Плитка дня или слота: жёсткий контур, как у чипа */
+.tile {
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 4px;
+  min-width: 50px;
+  min-height: 40px;
+  padding: 6px 10px;
+  font: inherit;
+  color: var(--text);
+  background: var(--bg-raised);
+  border: var(--rule) solid var(--ink-line);
+  border-radius: var(--r-sm);
+  box-shadow: var(--hard-sm);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    transform 70ms var(--ease-out),
+    box-shadow 70ms var(--ease-out),
+    background-color 120ms var(--ease-out);
+}
+
+.tile:active {
+  transform: translate(2px, 2px);
+  box-shadow: none;
+}
+
+.tile[aria-checked="true"] {
+  color: var(--accent-ink);
+  background: var(--accent-soft);
+  border-color: var(--accent);
+}
+
+.tile:disabled {
+  opacity: 0.45;
+  box-shadow: none;
+  transform: none;
+  cursor: not-allowed;
+}
+
+@media (hover: hover) {
+  .tile[aria-checked="false"]:not(:disabled):hover {
+    background: var(--bg-sunken);
+  }
+}
+
+/* Полоса дней прокручивается сама, страница вбок не едет */
+.days {
+  display: flex;
+  gap: var(--space-0);
+  margin: -4px;
+  padding: 4px 8px 8px 4px;
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+}
+
+.day {
+  flex: none;
+  scroll-snap-align: start;
+}
+
+.day-week {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.day-num {
+  font-family: var(--font-display);
+  font-size: 20px;
+  line-height: 1;
+  -webkit-font-smoothing: none;
+}
+
+.slots {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-1);
+}
+
+.slot {
+  justify-items: start;
+  text-align: left;
+}
+
+.slot-name {
+  font-family: var(--font-display);
+  font-size: 15px;
+  line-height: 1.15;
+  -webkit-font-smoothing: none;
+}
+
+.slot-time {
+  font-size: 14px;
+  line-height: 1.2;
+  color: var(--text-muted);
+}
+
+.slot[aria-checked="true"] .slot-time {
+  color: var(--accent-ink);
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: var(--space-3) var(--space-4);
+}
+
+.filter-status:empty {
+  display: none;
+}
+
+.narrow-only {
+  display: none;
+}
+
+@media (width < 480px) {
+  .wide-only {
+    display: none;
+  }
+
+  .narrow-only {
+    display: inline;
+  }
+}
+
+@media (min-width: 760px) {
+  .slots {
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+  .slot {
+    min-width: 160px;
+  }
+}
+
 /* ── Раскладка ──────────────────────────────────────────── */
 
 .layout {
@@ -194,6 +362,15 @@
 .plan-places {
   position: absolute;
   inset: 0;
+}
+
+.plan-empty {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: max-content;
+  max-width: 80%;
+  transform: translate(-50%, -50%);
 }
 
 /* Место на плане: кнопка с жёстким контуром, как всё, что нажимают */

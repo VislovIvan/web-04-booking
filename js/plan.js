@@ -1,11 +1,11 @@
 // План этажа: кнопки мест поверх схемы SVG
 
 import { PLACES } from './data.js';
-import { state, matchesFilters, placeStatus, slotById } from './store.js';
+import { state, matchesFilters, placeStatus, slotById, toggleSelect, clearSelection } from './store.js';
 import { el, statusContent } from './ui.js';
 import { formatDate, rub, slotRange } from './format.js';
 
-export function createPlan({ layer, caption }) {
+export function createPlan({ layer, caption, empty }) {
   const items = PLACES.map((place) => {
     const button = el('button', 'place');
     button.type = 'button';
@@ -20,6 +20,14 @@ export function createPlan({ layer, caption }) {
     );
     layer.append(button);
     return { place, button, status };
+  });
+
+  layer.addEventListener('click', (event) => {
+    const button = event.target.closest('.place');
+    if (button) toggleSelect(button.dataset.id);
+  });
+  layer.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') clearSelection();
   });
 
   function update() {
@@ -39,6 +47,7 @@ export function createPlan({ layer, caption }) {
         if (value !== 'busy') free += 1;
       }
     }
+    empty.hidden = shown > 0;
     const slot = slotById(state.session.slot);
     caption.textContent = `Занятость на ${formatDate(state.session.date)}, ${slot.name.toLowerCase()} ${slotRange(slot)}: свободно ${free} из ${shown}.`;
   }

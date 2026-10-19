@@ -19,17 +19,23 @@ export function addDays(date, days) {
 const weekdayShort = new Intl.DateTimeFormat('ru-RU', { weekday: 'short' });
 const weekdayLong = new Intl.DateTimeFormat('ru-RU', { weekday: 'long' });
 const dayMonth = new Intl.DateTimeFormat('ru-RU', { day: 'numeric', month: 'long' });
+const dayMonthShort = new Intl.DateTimeFormat('ru-RU', { day: 'numeric', month: 'short' });
 
 export const weekday = (key) => weekdayShort.format(parseKey(key));
 
 // «ср, 21 октября»
 export const formatDate = (key) => `${weekday(key)}, ${dayMonth.format(parseKey(key))}`;
 
+// «21 окт.»
+export const shortDate = (key) => dayMonthShort.format(parseKey(key));
+
 // «среда, 21 октября»
 export const formatDateLong = (key) =>
   `${weekdayLong.format(parseKey(key))}, ${dayMonth.format(parseKey(key))}`;
 
 export const slotRange = (slot) => `с ${slot.start}:00 до ${slot.end}:00`;
+
+export const slotRangeShort = (slot) => `с ${slot.start} до ${slot.end}`;
 
 export const slotHours = (slot) => slot.end - slot.start;
 

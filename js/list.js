@@ -1,13 +1,13 @@
 // Список мест: те же данные, что на плане, удобно выбирать с клавиатуры
 
 import { PLACES } from './data.js';
-import { matchesFilters, placeStatus, bookingAt } from './store.js';
+import { matchesFilters, placeStatus, bookingAt, toggleSelect, clearSelection } from './store.js';
 import { el, statusContent } from './ui.js';
 import { rub, capacityText } from './format.js';
 
 const BADGE = { free: 'badge-ok', selected: 'badge-accent', busy: 'badge-danger' };
 
-export function createList({ list, count }) {
+export function createList({ list, count, empty }) {
   const items = PLACES.map((place) => {
     const button = el('button', 'item');
     button.type = 'button';
@@ -28,6 +28,14 @@ export function createList({ list, count }) {
     return { place, li, button, badge, note };
   });
 
+  list.addEventListener('click', (event) => {
+    const button = event.target.closest('.item');
+    if (button) toggleSelect(button.dataset.id);
+  });
+  list.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') clearSelection();
+  });
+
   function update() {
     let shown = 0;
     for (const { place, li, button, badge, note } of items) {
@@ -45,6 +53,7 @@ export function createList({ list, count }) {
       note.hidden = !own;
     }
     count.textContent = `${shown} из ${PLACES.length}`;
+    empty.hidden = shown > 0;
   }
 
   return { update };

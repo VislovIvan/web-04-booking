@@ -35,6 +35,32 @@
       <p class="demo-note"><span class="label">Учебное демо:</span> бронирования сохраняются только в этом браузере</p>
     </section>
 
+    <section class="controls" aria-label="День, время и фильтры">
+      <div class="control">
+        <div class="control-head">
+          <span class="label" id="dayLabel">День</span>
+          <span class="control-value" id="dayValue"></span>
+        </div>
+        <div class="days" id="days" role="radiogroup" aria-labelledby="dayLabel"></div>
+      </div>
+      <div class="control">
+        <span class="label" id="slotLabel">Время</span>
+        <div class="slots" id="slots" role="radiogroup" aria-labelledby="slotLabel"></div>
+      </div>
+      <div class="filters">
+        <div class="control">
+          <span class="label" id="seatsLabel">Мест не меньше</span>
+          <div class="chip-row" id="seatsFilter" role="radiogroup" aria-labelledby="seatsLabel"></div>
+        </div>
+        <div class="control">
+          <span class="label" id="priceLabel">Цена за час до</span>
+          <div class="chip-row" id="priceFilter" role="radiogroup" aria-labelledby="priceLabel"></div>
+        </div>
+        <button class="btn btn-sm" type="button" id="resetFilters">Сбросить фильтры</button>
+      </div>
+      <p class="notice filter-status" id="filterStatus" role="status"></p>
+    </section>
+
     <div class="layout">
       <section class="window plan-window" aria-labelledby="planTitle">
         <div class="window-bar"><h2 class="window-title" id="planTitle">План этажа</h2></div>
@@ -69,6 +95,7 @@
             <span class="plan-label plan-label-kitchen" aria-hidden="true">Кухня</span>
             <span class="plan-label plan-label-entry" aria-hidden="true">Вход</span>
             <div class="plan-places" id="planPlaces" role="group" aria-label="Места на плане"></div>
+            <p class="notice plan-empty" id="planEmpty" hidden>Под выбранные фильтры мест нет</p>
           </div>
           <ul class="legend" aria-label="Обозначения на плане">
             <li><span class="swatch"></span>Свободно</li>
@@ -85,6 +112,10 @@
           <span class="label" id="listCount"></span>
         </div>
         <ul class="place-list" id="placeList"></ul>
+        <div class="notice" id="listEmpty" hidden>
+          <span>Под выбранные фильтры мест нет. Уменьшите число мест или поднимите цену.</span>
+          <button class="btn btn-sm" type="button" id="listResetFilters">Сбросить фильтры</button>
+        </div>
       </section>
     </div>
   </main>

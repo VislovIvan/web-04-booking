@@ -23,6 +23,45 @@ export function icon(name) {
   return svg;
 }
 
+// Группа кнопок с одним выбором: Tab заходит на выбранную, стрелки двигают выбор
+export function bindRadioGroup(group, onPick) {
+  group.addEventListener('click', (event) => {
+    const radio = event.target.closest('[role="radio"]');
+    if (radio && !radio.disabled) onPick(radio.dataset.value);
+  });
+  group.addEventListener('keydown', (event) => {
+    const step = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }[event.key];
+    const radios = [...group.querySelectorAll('[role="radio"]:not(:disabled)')];
+    const index = radios.indexOf(document.activeElement);
+    if (index === -1 || (!step && event.key !== 'Home' && event.key !== 'End')) return;
+    event.preventDefault();
+    let next = (index + (step ?? 0) + radios.length) % radios.length;
+    if (event.key === 'Home') next = 0;
+    if (event.key === 'End') next = radios.length - 1;
+    radios[next].focus();
+    onPick(radios[next].dataset.value);
+  });
+}
+
+export function syncRadioGroup(group, value) {
+  const radios = [...group.querySelectorAll('[role="radio"]')];
+  const target =
+    radios.find((radio) => radio.dataset.value === value && !radio.disabled) ??
+    radios.find((radio) => !radio.disabled);
+  for (const radio of radios) {
+    radio.setAttribute('aria-checked', String(radio.dataset.value === value));
+    radio.tabIndex = radio === target ? 0 : -1;
+  }
+}
+
+export function radio(className, value) {
+  const button = el('button', className);
+  button.type = 'button';
+  button.setAttribute('role', 'radio');
+  button.dataset.value = value;
+  return button;
+}
+
 // Значок состояния и подпись: «Выбрано» с галочкой, «Занято» с замком
 export function statusContent(status) {
   const name = STATUS_ICON[status];
