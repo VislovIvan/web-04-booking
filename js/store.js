@@ -1,7 +1,7 @@
 // Состояние приложения: сеанс, выбор, фильтры и брони
 
 import { PLACES, SLOTS, DAYS_AHEAD } from './data.js';
-import { dateKey, parseKey, addDays } from './format.js';
+import { dateKey, parseKey, addDays, slotHours } from './format.js';
 
 const DEFAULT_FILTERS = { seats: 1, price: 0 };
 
@@ -10,6 +10,8 @@ export const state = {
   filters: { ...DEFAULT_FILTERS },
   selectedId: null,
   bookings: [],
+  // Счётчик номеров: после отмены номер не переиспользуется
+  seq: 0,
 };
 
 const listeners = new Set();
@@ -162,4 +164,33 @@ export function validate(guestsRaw, now = new Date()) {
     if (guests.error) errors.guests = guests.error;
   }
   return errors;
+}
+
+// Подтверждение: одна запись, место сразу занято в этом слоте
+export function book(guestsRaw) {
+  const errors = validate(guestsRaw);
+  if (Object.keys(errors).length) return { errors };
+  const place = placeById(state.selectedId);
+  const slot = slotById(state.session.slot);
+  state.seq += 1;
+  const booking = {
+    id: `К42-${String(state.seq).padStart(4, '0')}`,
+    placeId: place.id,
+    date: state.session.date,
+    slot: slot.id,
+    guests: parseGuests(guestsRaw, place.seats).value,
+    total: place.price * slotHours(slot),
+  };
+  state.bookings.push(booking);
+  state.selectedId = null;
+  emit();
+  return { booking };
+}
+
+export function cancelBooking(id) {
+  const booking = state.bookings.find((item) => item.id === id);
+  if (!booking) return null;
+  state.bookings = state.bookings.filter((item) => item !== booking);
+  emit();
+  return booking;
 }

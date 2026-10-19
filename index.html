@@ -143,7 +143,7 @@
               <span class="total-calc" id="totalCalc"></span>
             </div>
             <button class="btn btn-primary confirm" type="submit" id="confirm">Подтвердить бронь</button>
-            <p class="form-status" id="formStatus" role="status"></p>
+            <p class="notice notice-ok form-status" id="formStatus" role="status"></p>
           </form>
           <p class="card-note">Учебное демо, реальная бронь не оформляется, оплаты нет</p>
         </div>
@@ -159,6 +159,15 @@
           <span>Под выбранные фильтры мест нет. Уменьшите число мест или поднимите цену.</span>
           <button class="btn btn-sm" type="button" id="listResetFilters">Сбросить фильтры</button>
         </div>
+      </section>
+
+      <section class="bookings-section" id="bookings" aria-labelledby="bookingsTitle">
+        <div class="section-head">
+          <h2 id="bookingsTitle" tabindex="-1">Мои брони</h2>
+        </div>
+        <p class="notice notice-ok bookings-status" id="bookingsStatus" role="status"></p>
+        <ol class="booking-list" id="bookingList"></ol>
+        <p class="notice" id="bookingsEmpty">Броней пока нет. Выберите место, время и нажмите «Подтвердить бронь».</p>
       </section>
     </div>
   </main>

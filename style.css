@@ -629,7 +629,7 @@
 
 .item-name {
   font-family: var(--font-display);
-  font-size: 16px;
+  font-size: 15px;
   line-height: 1.15;
   -webkit-font-smoothing: none;
 }
@@ -788,4 +788,95 @@
 .card-note {
   font-size: 14px;
   color: var(--text-muted);
+}
+
+/* ── Мои брони ──────────────────────────────────────────── */
+
+.bookings-status {
+  margin-bottom: var(--space-2);
+}
+
+.bookings-status:empty {
+  display: none;
+}
+
+.booking-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Запись читают, а не нажимают: мягкий контур */
+.booking {
+  display: grid;
+  align-content: start;
+  gap: 4px;
+  padding: var(--space-2) var(--space-3);
+  background: var(--bg-raised);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-md);
+}
+
+.booking.is-new {
+  animation: booking-in 200ms var(--ease-out);
+}
+
+@keyframes booking-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+.booking-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-1);
+  min-height: 40px;
+}
+
+.booking-id {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+}
+
+.booking-place {
+  font-family: var(--font-display);
+  font-size: 15px;
+  -webkit-font-smoothing: none;
+}
+
+.booking-when,
+.booking-meta {
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+.confirm-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.confirm-row:empty {
+  display: none;
+}
+
+.confirm-row:not(:empty) {
+  margin-top: var(--space-1);
+  padding-top: var(--space-1);
+  border-top: 1px solid var(--border);
+}
+
+.confirm-question {
+  flex-basis: 100%;
+  font-size: 14px;
+  font-weight: 600;
 }

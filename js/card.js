@@ -2,14 +2,14 @@
 
 import { SLOTS } from './data.js';
 import {
-  state, placeById, slotById, dayKeys, dayOpen, slotStarted, slotEnded, setSession, validate,
+  state, placeById, slotById, dayKeys, dayOpen, slotStarted, slotEnded, setSession, validate, book,
 } from './store.js';
 import { el } from './ui.js';
 import {
-  rub, capacityText, slotHours, slotRange, slotRangeShort, shortDate, weekday,
+  rub, capacityText, slotHours, slotRange, slotRangeShort, shortDate, weekday, formatDate,
 } from './format.js';
 
-export function createCard(root) {
+export function createCard(root, { onBooked }) {
   const $ = (selector) => root.querySelector(selector);
   const form = $('#bookingForm');
   const name = $('#chosenName');
@@ -26,10 +26,33 @@ export function createCard(root) {
   const guestsError = $('#guestsError');
   const sum = $('#totalSum');
   const calc = $('#totalCalc');
+  const confirm = $('#confirm');
+  const status = $('#formStatus');
 
   let shownDays = '';
   let shownPlace = null;
   let guestsTouched = false;
+  // После брони кнопка ждёт новых данных: так двойное нажатие не создаст дубль
+  let lockKey = null;
+
+  const formKey = () => `${state.session.date}|${state.session.slot}|${state.selectedId}`;
+
+  function unlock() {
+    if (lockKey === null) return;
+    lockKey = null;
+    confirm.removeAttribute('aria-disabled');
+    status.replaceChildren();
+  }
+
+  function showSuccess(booking, place) {
+    const slot = slotById(booking.slot);
+    const link = el('a', 'link', 'Перейти к моим броням');
+    link.href = '#bookings';
+    status.replaceChildren(
+      `Бронь ${booking.id} оформлена: ${place.name}, ${formatDate(booking.date)}, ${slot.name.toLowerCase()} ${slotRange(slot)}, ${rub(booking.total)}. `,
+      link,
+    );
+  }
 
   const slotOptions = SLOTS.map((slot) => new Option(slot.name, slot.id));
   slotSelect.append(...slotOptions);
@@ -53,13 +76,22 @@ export function createCard(root) {
 
   form.addEventListener('submit', (event) => {
     event.preventDefault();
+    if (lockKey !== null) return;
     guestsTouched = true;
-    const errors = validate(guests.value);
-    setError(placeError, null, errors.place);
-    setError(slotError, slotSelect, errors.slot);
-    setError(guestsError, guests, errors.guests);
-    if (errors.guests) guests.focus();
-    else if (errors.slot) slotSelect.focus();
+    const place = placeById(state.selectedId);
+    const { errors, booking } = book(guests.value);
+    if (errors) {
+      setError(placeError, null, errors.place);
+      setError(slotError, slotSelect, errors.slot);
+      setError(guestsError, guests, errors.guests);
+      if (errors.guests) guests.focus();
+      else if (errors.slot) slotSelect.focus();
+      return;
+    }
+    lockKey = formKey();
+    confirm.setAttribute('aria-disabled', 'true');
+    showSuccess(booking, place);
+    onBooked(booking);
   });
 
   function renderDates() {
@@ -124,6 +156,7 @@ export function createCard(root) {
   }
 
   function update() {
+    if (lockKey !== null && formKey() !== lockKey) unlock();
     const place = placeById(state.selectedId);
     renderPlace(place);
     renderSession(new Date());

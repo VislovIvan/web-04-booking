@@ -67,3 +67,25 @@ export function statusContent(status) {
   const name = STATUS_ICON[status];
   return name ? [icon(name), STATUS_TEXT[status]] : [STATUS_TEXT[status]];
 }
+
+// Подтверждение на странице вместо confirm(): вопрос, «Да» и «Нет»
+export function askInline(host, { question, yes, onYes, trigger }) {
+  const yesButton = el('button', 'btn btn-sm btn-danger', yes);
+  const noButton = el('button', 'btn btn-sm', 'Нет');
+  yesButton.type = 'button';
+  noButton.type = 'button';
+  const close = () => {
+    host.replaceChildren();
+    trigger.hidden = false;
+    trigger.focus();
+  };
+  yesButton.addEventListener('click', onYes);
+  noButton.addEventListener('click', close);
+  host.onkeydown = (event) => {
+    if (event.key === 'Escape') close();
+  };
+  host.replaceChildren(el('span', 'confirm-question', question), yesButton, noButton);
+  trigger.hidden = true;
+  // Фокус на «Нет»: случайное второе нажатие ничего не удалит
+  noButton.focus();
+}
