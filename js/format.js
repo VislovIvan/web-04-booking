@@ -41,7 +41,7 @@ export const slotHours = (slot) => slot.end - slot.start;
 
 const money = new Intl.NumberFormat('ru-RU');
 
-export const rub = (value) => `${money.format(value)} ₽`;
+export const rub = (value) => `${money.format(value)}\u00a0₽`;
 
 export function plural(n, [one, few, many]) {
   const mod10 = n % 10;

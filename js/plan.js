@@ -41,6 +41,7 @@ export function createPlan({ layer, caption, empty }) {
       button.setAttribute('aria-pressed', String(value === 'selected'));
       button.classList.toggle('is-busy', value === 'busy');
       button.classList.toggle('hatch', value === 'busy');
+      button.classList.toggle('is-chosen', value === 'busy' && place.id === state.selectedId);
       status.replaceChildren(...statusContent(value));
       if (visible) {
         shown += 1;

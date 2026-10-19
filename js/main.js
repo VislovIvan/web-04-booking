@@ -4,6 +4,7 @@ import { state, firstOpenSession, subscribe, resetFilters } from './store.js';
 import { createToolbar } from './toolbar.js';
 import { createPlan } from './plan.js';
 import { createList } from './list.js';
+import { createCard } from './card.js';
 
 const $ = (selector) => document.querySelector(selector);
 
@@ -17,10 +18,19 @@ const plan = createPlan({
   empty: $('#planEmpty'),
 });
 
+const card = createCard($('#card'));
+
+// На телефоне карточка стоит выше списка: после выбора в списке показываем её
+const narrow = matchMedia('(width < 900px)');
+const calm = matchMedia('(prefers-reduced-motion: reduce)');
+
 const list = createList({
   list: $('#placeList'),
   count: $('#listCount'),
   empty: $('#listEmpty'),
+  onPicked: () => {
+    if (narrow.matches) $('#card').scrollIntoView({ behavior: calm.matches ? 'auto' : 'smooth', block: 'start' });
+  },
 });
 
 $('#listResetFilters').addEventListener('click', () => {
@@ -32,6 +42,7 @@ function render() {
   toolbar.update();
   plan.update();
   list.update();
+  card.update();
 }
 
 subscribe(render);

@@ -106,6 +106,49 @@
         </div>
       </section>
 
+      <section class="window booking-card" id="card" aria-labelledby="cardTitle">
+        <div class="window-bar"><h2 class="window-title" id="cardTitle">Бронь</h2></div>
+        <div class="window-body card-body">
+          <div class="chosen">
+            <h3 class="chosen-name" id="chosenName">Место не выбрано</h3>
+            <p class="chosen-meta" id="chosenMeta"></p>
+            <div class="chosen-details" id="chosenDetails" hidden>
+              <p id="chosenText"></p>
+              <ul class="features" id="chosenFeatures" aria-label="Особенности"></ul>
+            </div>
+            <p class="field-error" id="placeError" aria-live="polite"></p>
+          </div>
+
+          <form class="booking-form" id="bookingForm" novalidate>
+            <div class="form-row">
+              <label class="field">
+                <span class="field-label">Дата</span>
+                <select class="select" id="formDate" aria-describedby="slotError"></select>
+              </label>
+              <label class="field">
+                <span class="field-label">Время</span>
+                <select class="select" id="formSlot" aria-describedby="slotError"></select>
+              </label>
+            </div>
+            <p class="field-error" id="slotError" aria-live="polite"></p>
+            <div class="field guests-field">
+              <label class="field-label" for="guests">Гостей</label>
+              <input class="input" id="guests" inputmode="numeric" autocomplete="off" aria-describedby="guestsHint guestsError">
+              <p class="field-hint" id="guestsHint"></p>
+              <p class="field-error" id="guestsError" aria-live="polite"></p>
+            </div>
+            <div class="total" aria-live="polite">
+              <span class="label">Итого</span>
+              <span class="total-sum" id="totalSum"></span>
+              <span class="total-calc" id="totalCalc"></span>
+            </div>
+            <button class="btn btn-primary confirm" type="submit" id="confirm">Подтвердить бронь</button>
+            <p class="form-status" id="formStatus" role="status"></p>
+          </form>
+          <p class="card-note">Учебное демо, реальная бронь не оформляется, оплаты нет</p>
+        </div>
+      </section>
+
       <section class="list-section" aria-labelledby="listTitle">
         <div class="section-head">
           <h2 id="listTitle">Все места</h2>

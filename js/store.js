@@ -133,3 +133,33 @@ export function setFilters(patch) {
 }
 
 export const resetFilters = () => setFilters(DEFAULT_FILTERS);
+
+// Гостей: целое число от 1 до вместимости места
+export function parseGuests(raw, seats) {
+  const text = String(raw).trim();
+  if (text === '') return { error: `Укажите число гостей: от 1 до ${seats}.` };
+  if (!/^-?\d+$/.test(text)) return { error: 'Нужно целое число, без дробей и букв.' };
+  const value = Number(text);
+  if (value < 1 || value > seats) return { error: `Гостей может быть от 1 до ${seats}.` };
+  return { value };
+}
+
+// Ошибки формы по полям: place, slot, guests
+export function validate(guestsRaw, now = new Date()) {
+  const errors = {};
+  const place = placeById(state.selectedId);
+  const { date, slot } = state.session;
+  if (!place) errors.place = 'Выберите место на плане или в списке.';
+  if (slotStarted(date, slot, now)) {
+    errors.slot = slotEnded(date, slot, now)
+      ? 'Этот слот уже прошёл, выберите другое время.'
+      : 'Этот слот уже начался, выберите другое время.';
+  } else if (place && isBusy(place.id)) {
+    errors.slot = 'Место занято в это время, выберите другое время или место.';
+  }
+  if (place) {
+    const guests = parseGuests(guestsRaw, place.seats);
+    if (guests.error) errors.guests = guests.error;
+  }
+  return errors;
+}
