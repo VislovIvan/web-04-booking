@@ -4,7 +4,7 @@ import { SLOTS, SEAT_OPTIONS, PRICE_OPTIONS } from './data.js';
 import {
   state, dayKeys, dayOpen, slotStarted, slotEnded, setSession, setFilters, resetFilters,
 } from './store.js';
-import { el, radio, bindRadioGroup, syncRadioGroup } from './ui.js';
+import { el, radio, bindRadioGroup, syncRadioGroup, setText } from './ui.js';
 import { formatDateLong, weekday, parseKey, slotRange, slotRangeShort, rub } from './format.js';
 
 export function createToolbar(root) {
@@ -32,12 +32,10 @@ export function createToolbar(root) {
     const time = el('span', 'slot-time');
     button.append(el('span', 'slot-name', slot.name), time);
     slots.append(button);
-    return { slot, button, time };
+    return { slot, button, time, shown: '' };
   });
 
-  const showHidden = (place) => {
-    status.textContent = place ? `${place.name} не подходит под фильтры, выбор снят.` : '';
-  };
+  const showHidden = (place) => setText(status, place ? `${place.name} не подходит под фильтры, выбор снят.` : '');
 
   bindRadioGroup(days, (date) => setSession({ date }));
   bindRadioGroup(slots, (slot) => setSession({ slot }));
@@ -52,12 +50,9 @@ export function createToolbar(root) {
     shownDays = keys.join();
     days.replaceChildren(
       ...keys.map((key, index) => {
-        const button = radio('tile day', key);
+        const button = radio(index === 0 ? 'tile day is-today' : 'tile day', key);
         button.setAttribute('aria-label', `${formatDateLong(key)}${index === 0 ? ', сегодня' : ''}`);
-        button.append(
-          el('span', 'day-week', index === 0 ? 'Сегодня' : weekday(key)),
-          el('span', 'day-num', String(parseKey(key).getDate())),
-        );
+        button.append(el('span', 'day-week', weekday(key)), el('span', 'day-num', String(parseKey(key).getDate())));
         return button;
       }),
     );
@@ -69,15 +64,18 @@ export function createToolbar(root) {
     renderDays();
     for (const button of days.children) button.disabled = !dayOpen(button.dataset.value, now);
     syncRadioGroup(days, date);
-    dayValue.textContent = formatDateLong(date);
+    setText(dayValue, `${formatDateLong(date)}${date === days.firstElementChild.dataset.value ? ', сегодня' : ''}`);
 
     for (const item of slotItems) {
       const started = slotStarted(date, item.slot.id, now);
+      const note = started ? (slotEnded(date, item.slot.id, now) ? 'прошёл' : 'уже идёт') : 'open';
       item.button.disabled = started;
+      if (item.shown === note) continue;
+      item.shown = note;
       // На узком экране время короче: «с 9 до 13»
       item.time.replaceChildren(
         ...(started
-          ? [slotEnded(date, item.slot.id, now) ? 'прошёл' : 'уже идёт']
+          ? [note]
           : [el('span', 'wide-only', slotRange(item.slot)), el('span', 'narrow-only', slotRangeShort(item.slot))]),
       );
     }

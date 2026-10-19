@@ -1,7 +1,7 @@
 // Мелкие помощники для разметки
 
-export const STATUS_TEXT = { free: 'Свободно', selected: 'Выбрано', busy: 'Занято' };
-export const STATUS_ICON = { selected: 'check', busy: 'lock' };
+const STATUS_TEXT = { free: 'Свободно', selected: 'Выбрано', busy: 'Занято' };
+const STATUS_ICON = { selected: 'check', busy: 'lock' };
 
 export function el(tag, className, text) {
   const node = document.createElement(tag);
@@ -18,7 +18,7 @@ export function setText(node, text) {
 const SVG_NS = 'http://www.w3.org/2000/svg';
 
 // Значок из спрайта в index.html
-export function icon(name) {
+function icon(name) {
   const svg = document.createElementNS(SVG_NS, 'svg');
   svg.setAttribute('class', 'icon');
   svg.setAttribute('aria-hidden', 'true');
@@ -69,24 +69,27 @@ export function radio(className, value) {
 
 // Значок состояния и подпись: «Выбрано» с галочкой, «Занято» с замком
 export function statusContent(status) {
+  const word = el('span', 'status-word', STATUS_TEXT[status]);
   const name = STATUS_ICON[status];
-  return name ? [icon(name), STATUS_TEXT[status]] : [STATUS_TEXT[status]];
+  return name ? [icon(name), word] : [word];
 }
 
-// Подтверждение на странице вместо confirm(): вопрос, «Да» и «Нет»
+// Подтверждение на странице, без системного окна: вопрос, «Да» и «Нет»
 export function askInline(host, { question, yes, onYes, trigger }) {
   const yesButton = el('button', 'btn btn-sm btn-danger', yes);
   const noButton = el('button', 'btn btn-sm', 'Нет');
   yesButton.type = 'button';
   noButton.type = 'button';
-  const close = () => {
+  const hide = () => {
     host.replaceChildren();
     trigger.hidden = false;
+  };
+  const close = () => {
+    hide();
     trigger.focus();
   };
   yesButton.addEventListener('click', () => {
-    host.replaceChildren();
-    trigger.hidden = false;
+    hide();
     onYes();
   });
   noButton.addEventListener('click', close);

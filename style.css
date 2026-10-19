@@ -35,7 +35,7 @@
 
 .page {
   display: grid;
-  gap: var(--space-5);
+  gap: 30px;
   padding-block: var(--space-4) var(--space-5);
 }
 
@@ -54,7 +54,7 @@
 }
 
 .lead {
-  max-width: 640px;
+  max-width: 800px;
   font-size: 16px;
   color: var(--text-muted);
 }
@@ -90,6 +90,12 @@
   gap: var(--space-0) var(--space-2);
 }
 
+/* Подписи колонок одной высоты, чтобы плитки начинались на одном уровне */
+.control-value,
+.control > .label {
+  line-height: 20px;
+}
+
 .control-value {
   font-size: 14px;
   color: var(--text-muted);
@@ -113,8 +119,8 @@
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
   transition:
-    transform 70ms var(--ease-out),
-    box-shadow 70ms var(--ease-out),
+    transform 100ms var(--ease-out),
+    box-shadow 100ms var(--ease-out),
     background-color 120ms var(--ease-out);
 }
 
@@ -173,6 +179,13 @@
   -webkit-font-smoothing: none;
 }
 
+/* Сегодня: число подчёркнуто, как в календаре */
+.is-today .day-num {
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
+}
+
 .slots {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -212,6 +225,14 @@
   display: none;
 }
 
+/* На тач-экране чип «1» тоже не уже 40 px */
+@media (pointer: coarse) {
+  .chip {
+    justify-content: center;
+    min-width: 40px;
+  }
+}
+
 .narrow-only {
   display: none;
 }
@@ -226,6 +247,16 @@
   }
 }
 
+@media (width < 360px) {
+  .slot {
+    padding-inline: 8px;
+  }
+
+  .slot-time {
+    font-size: 12px;
+  }
+}
+
 @media (min-width: 760px) {
   .slots {
     display: flex;
@@ -234,6 +265,47 @@
 
   .slot {
     min-width: 160px;
+  }
+}
+
+/* Широкий экран: день, время и фильтры одной панелью, дни сеткой на две недели */
+@media (min-width: 1000px) {
+  .controls {
+    grid-template-columns: repeat(3, auto);
+    justify-content: space-between;
+    align-items: start;
+    column-gap: var(--space-4);
+  }
+
+  .days {
+    display: grid;
+    grid-template-columns: repeat(7, auto);
+    margin: 0;
+    padding: 0;
+    overflow: visible;
+  }
+
+  .slots {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .slot {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-2);
+    min-width: 240px;
+  }
+
+  .filters {
+    display: grid;
+    justify-items: start;
+    gap: var(--space-2);
+  }
+
+  .filter-status {
+    grid-column: 1 / -1;
   }
 }
 
@@ -375,7 +447,7 @@
 }
 
 .plan-label-rooms {
-  left: 83%;
+  left: 81%;
   top: 8%;
 }
 
@@ -422,8 +494,8 @@
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
   transition:
-    transform 70ms var(--ease-out),
-    box-shadow 70ms var(--ease-out),
+    transform 100ms var(--ease-out),
+    box-shadow 100ms var(--ease-out),
     background-color 120ms var(--ease-out);
 }
 
@@ -473,6 +545,22 @@
 
   .place-status .icon {
     order: -1;
+  }
+}
+
+/* Экран 320 px: слово состояния остаётся только для чтения с экрана, видны значок и штриховка */
+@container (width < 320px) {
+  .place {
+    padding: 0;
+  }
+
+  .status-word {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
   }
 }
 
@@ -614,8 +702,8 @@
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
   transition:
-    transform 70ms var(--ease-out),
-    box-shadow 70ms var(--ease-out),
+    transform 100ms var(--ease-out),
+    box-shadow 100ms var(--ease-out),
     background-color 120ms var(--ease-out);
 }
 
@@ -737,7 +825,7 @@
 }
 
 /* Дата и время рядом, только если подписи влезают целиком */
-@container (min-width: 340px) {
+@container (min-width: 300px) {
   .form-row {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -795,6 +883,10 @@
 }
 
 /* ── Мои брони ──────────────────────────────────────────── */
+
+.bookings-section {
+  scroll-margin-top: 80px;
+}
 
 .bookings-status {
   margin-bottom: var(--space-2);

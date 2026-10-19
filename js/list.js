@@ -25,7 +25,7 @@ export function createList({ list, count, empty, onPicked }) {
     const li = el('li');
     li.append(button);
     list.append(li);
-    return { place, li, button, badge, note };
+    return { place, li, button, badge, note, shown: null };
   });
 
   list.addEventListener('click', (event) => {
@@ -41,7 +41,8 @@ export function createList({ list, count, empty, onPicked }) {
 
   function update() {
     let shown = 0;
-    for (const { place, li, button, badge, note } of items) {
+    for (const item of items) {
+      const { place, li, button, badge, note } = item;
       const value = placeStatus(place);
       const visible = matchesFilters(place);
       li.hidden = !visible;
@@ -50,8 +51,11 @@ export function createList({ list, count, empty, onPicked }) {
       button.setAttribute('aria-pressed', String(value === 'selected'));
       button.classList.toggle('hatch', value === 'busy');
       button.classList.toggle('is-chosen', value === 'busy' && place.id === state.selectedId);
-      badge.className = `badge ${BADGE[value]}`;
-      badge.replaceChildren(...statusContent(value));
+      if (item.shown !== value) {
+        item.shown = value;
+        badge.className = `badge ${BADGE[value]}`;
+        badge.replaceChildren(...statusContent(value));
+      }
       const own = bookingAt(place.id);
       note.textContent = own ? `Ваша бронь ${own.id}` : '';
       note.hidden = !own;

@@ -6,7 +6,7 @@ import {
 } from './store.js';
 import { el, setText } from './ui.js';
 import {
-  rub, capacityText, slotHours, slotRange, slotRangeShort, shortDate, weekday, formatDate,
+  rub, capacityText, slotHours, slotRange, shortDate, weekday, formatDate,
 } from './format.js';
 
 export function createCard(root, { onBooked }) {
@@ -131,7 +131,8 @@ export function createCard(root, { onBooked }) {
       const started = slotStarted(date, item.id, now);
       const note = slotEnded(date, item.id, now) ? 'прошёл' : 'уже идёт';
       option.disabled = started;
-      option.textContent = `${item.name}, ${started ? note : slotRangeShort(item)}`;
+      // Точное время видно в плитках сверху и в строке итога
+      option.textContent = started ? `${item.name}, ${note}` : `${item.name} · ${slotHours(item)} ч`;
     });
     slotSelect.value = slot;
     // Занятость и прошедшее время видны сразу, не дожидаясь подтверждения

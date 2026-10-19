@@ -49,7 +49,7 @@ export function slotEnded(date, slotId, now = new Date()) {
 
 export const dayOpen = (date, now = new Date()) => SLOTS.some((slot) => !slotStarted(date, slot.id, now));
 
-export function firstOpenSession(now = new Date()) {
+function firstOpenSession(now = new Date()) {
   for (const date of dayKeys(now)) {
     const slot = SLOTS.find((item) => !slotStarted(date, item.id, now));
     if (slot) return { date, slot: slot.id };
@@ -76,7 +76,7 @@ function seededRandom(seed) {
 const demoCache = new Map();
 
 // Демо-занятость: 2 или 3 места на слот, одинаковые после обновления страницы
-export function demoBusy(date, slotId) {
+function demoBusy(date, slotId) {
   const key = `${date}|${slotId}`;
   if (!demoCache.has(key)) {
     const random = seededRandom(hash(key));
@@ -93,7 +93,7 @@ export function demoBusy(date, slotId) {
 export const bookingAt = (placeId, { date, slot } = state.session) =>
   state.bookings.find((item) => item.placeId === placeId && item.date === date && item.slot === slot);
 
-export const isBusy = (placeId, session = state.session) =>
+const isBusy = (placeId, session = state.session) =>
   demoBusy(session.date, session.slot).includes(placeId) || Boolean(bookingAt(placeId, session));
 
 export const matchesFilters = (place, { seats, price } = state.filters) =>
@@ -153,7 +153,7 @@ export function setFilters(patch) {
 export const resetFilters = () => setFilters(DEFAULT_FILTERS);
 
 // Гостей: целое число от 1 до вместимости места
-export function parseGuests(raw, seats) {
+function parseGuests(raw, seats) {
   const text = String(raw).trim();
   if (text === '') return { error: `Укажите число гостей: от 1 до ${seats}.` };
   if (!/^-?\d+$/.test(text)) return { error: 'Нужно целое число, без дробей и букв.' };

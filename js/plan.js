@@ -19,7 +19,7 @@ export function createPlan({ layer, caption, empty }) {
       status,
     );
     layer.append(button);
-    return { place, button, status };
+    return { place, button, status, shown: null };
   });
 
   layer.addEventListener('click', (event) => {
@@ -33,7 +33,8 @@ export function createPlan({ layer, caption, empty }) {
   function update() {
     let shown = 0;
     let free = 0;
-    for (const { place, button, status } of items) {
+    for (const item of items) {
+      const { place, button, status } = item;
       const value = placeStatus(place);
       const visible = matchesFilters(place);
       button.hidden = !visible;
@@ -42,7 +43,10 @@ export function createPlan({ layer, caption, empty }) {
       button.classList.toggle('is-busy', value === 'busy');
       button.classList.toggle('hatch', value === 'busy');
       button.classList.toggle('is-chosen', value === 'busy' && place.id === state.selectedId);
-      status.replaceChildren(...statusContent(value));
+      if (item.shown !== value) {
+        item.shown = value;
+        status.replaceChildren(...statusContent(value));
+      }
       if (visible) {
         shown += 1;
         if (value !== 'busy') free += 1;
@@ -50,7 +54,10 @@ export function createPlan({ layer, caption, empty }) {
     }
     empty.hidden = shown > 0;
     const slot = slotById(state.session.slot);
-    setText(caption, `Занятость на ${formatDate(state.session.date)}, ${slot.name.toLowerCase()} ${slotRange(slot)}: свободно ${free} из ${shown}.`);
+    let summary = `свободно ${free} из ${shown}`;
+    if (shown === 0) summary = 'под выбранные фильтры мест нет';
+    else if (shown < PLACES.length) summary += ' по фильтрам';
+    setText(caption, `Занятость на ${formatDate(state.session.date)}, ${slot.name.toLowerCase()} ${slotRange(slot)}: ${summary}.`);
   }
 
   return { update };
