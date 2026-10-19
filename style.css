@@ -1,0 +1,466 @@
+/* Коворкинг 42: оформление поверх mac.css */
+
+.sprite {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+
+.icon {
+  flex: none;
+  width: 12px;
+  height: 12px;
+}
+
+/* ── Шапка и вступление ─────────────────────────────────── */
+
+.header-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-height: 40px;
+  margin-left: auto;
+}
+
+.header-count {
+  min-width: 20px;
+  padding: 2px 6px;
+  text-align: center;
+  letter-spacing: 0;
+  color: var(--on-ink);
+  background: var(--ink-line);
+  border-radius: 4px;
+}
+
+.page {
+  display: grid;
+  gap: var(--space-5);
+  padding-block: var(--space-4) var(--space-5);
+}
+
+.intro {
+  display: grid;
+  justify-items: start;
+  gap: var(--space-2);
+}
+
+.intro h1 {
+  font-size: 30px;
+}
+
+.lead {
+  max-width: 640px;
+  font-size: 16px;
+  color: var(--text-muted);
+}
+
+@media (min-width: 760px) {
+  .intro h1 {
+    font-size: 50px;
+  }
+
+  .lead {
+    font-size: 18px;
+  }
+}
+
+/* ── Раскладка ──────────────────────────────────────────── */
+
+.layout {
+  display: grid;
+  align-items: start;
+  gap: var(--space-5);
+}
+
+.section-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-1) var(--space-3);
+  margin-bottom: var(--space-3);
+}
+
+.section-head h2 {
+  font-size: 24px;
+}
+
+/* ── План этажа ─────────────────────────────────────────── */
+
+/* План во всю ширину окна: на телефоне каждый пиксель на счету */
+.plan-window .window-body {
+  padding: 0;
+}
+
+.plan-caption {
+  padding: var(--space-2) var(--space-3);
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+.plan {
+  position: relative;
+  aspect-ratio: 5 / 4;
+  container-type: inline-size;
+  background: var(--bg-raised);
+}
+
+.plan-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.plan-zone {
+  fill: var(--bg-sunken);
+}
+
+.plan-wall {
+  fill: none;
+  stroke: var(--ink-line);
+}
+
+.plan-windows rect {
+  fill: var(--bg-raised);
+  stroke: var(--ink-line);
+  stroke-width: 1px;
+  vector-effect: non-scaling-stroke;
+}
+
+.plan-gap {
+  fill: var(--bg-raised);
+}
+
+.plan-door {
+  fill: none;
+  stroke: var(--text-faint);
+  stroke-width: 1px;
+  stroke-dasharray: 4 4;
+  vector-effect: non-scaling-stroke;
+}
+
+.plan-glass {
+  fill: none;
+  stroke: var(--text-faint);
+  stroke-width: 2px;
+  vector-effect: non-scaling-stroke;
+}
+
+.plan-furniture,
+.plan-sink {
+  stroke: var(--border-strong);
+  stroke-width: 1px;
+  vector-effect: non-scaling-stroke;
+}
+
+.plan-furniture {
+  fill: var(--bg-sunken);
+}
+
+.plan-sink {
+  fill: var(--bg-raised);
+}
+
+.plan-label {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--text-faint);
+  pointer-events: none;
+}
+
+.plan-label-rooms {
+  left: 83%;
+  top: 8%;
+}
+
+.plan-label-kitchen {
+  left: 77%;
+  top: 75%;
+}
+
+.plan-label-entry {
+  left: 47%;
+  top: 81%;
+}
+
+.plan-places {
+  position: absolute;
+  inset: 0;
+}
+
+/* Место на плане: кнопка с жёстким контуром, как всё, что нажимают */
+.place {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: 2px;
+  font: inherit;
+  text-align: center;
+  color: var(--text);
+  background: var(--bg-raised);
+  border: var(--rule) solid var(--ink-line);
+  border-radius: var(--r-sm);
+  box-shadow: var(--hard-sm);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    transform 70ms var(--ease-out),
+    box-shadow 70ms var(--ease-out),
+    background-color 120ms var(--ease-out);
+}
+
+.place:active {
+  transform: translate(2px, 2px);
+  box-shadow: none;
+}
+
+.place-name {
+  font-family: var(--font-display);
+  font-size: 12px;
+  line-height: 1.15;
+  -webkit-font-smoothing: none;
+}
+
+.place-price {
+  display: none;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.2;
+  color: var(--text-muted);
+}
+
+.place-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.place-status .icon {
+  width: 10px;
+  height: 10px;
+}
+
+/* На узком плане значок встаёт над названием, иначе подпись не влезает */
+@container (width < 520px) {
+  .place-status {
+    display: contents;
+  }
+
+  .place-status .icon {
+    order: -1;
+  }
+}
+
+.place[aria-pressed="true"] {
+  background: var(--accent);
+}
+
+.place[aria-pressed="true"] .place-status,
+.place[aria-pressed="true"] .place-price {
+  color: var(--text);
+}
+
+.place.is-busy {
+  color: var(--text-muted);
+  background-color: var(--bg-sunken);
+  border-color: var(--border-strong);
+  box-shadow: none;
+  transform: none;
+  cursor: not-allowed;
+}
+
+@media (hover: hover) {
+  .place[aria-pressed="false"]:not(:disabled):hover {
+    background-color: var(--bg-sunken);
+  }
+}
+
+@container (min-width: 520px) {
+  .plan-label {
+    font-size: 12px;
+  }
+
+  .place {
+    gap: 4px;
+    padding: 4px;
+  }
+
+  .place-name {
+    font-size: 15px;
+  }
+
+  .place-price {
+    display: block;
+  }
+
+  .place-status {
+    font-size: 12px;
+    letter-spacing: 0.06em;
+  }
+
+  .place-status .icon {
+    width: 12px;
+    height: 12px;
+  }
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-3);
+  margin: 0;
+  padding: var(--space-2) var(--space-3);
+  list-style: none;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.swatch {
+  display: inline-grid;
+  place-items: center;
+  width: 24px;
+  height: 20px;
+  color: var(--text);
+  background: var(--bg-raised);
+  border: var(--rule) solid var(--ink-line);
+  border-radius: 4px;
+}
+
+.swatch-selected {
+  background: var(--accent);
+}
+
+.swatch-busy {
+  color: var(--text-muted);
+  background-color: var(--bg-sunken);
+  border-color: var(--border-strong);
+}
+
+.swatch-window {
+  height: 10px;
+  border-width: 1px;
+}
+
+/* ── Список мест ────────────────────────────────────────── */
+
+.place-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.place-list li {
+  display: flex;
+}
+
+.item {
+  flex: 1;
+  display: grid;
+  align-content: start;
+  gap: 4px;
+  min-width: 0;
+  padding: 12px 14px;
+  font: inherit;
+  text-align: left;
+  color: var(--text);
+  background: var(--bg-raised);
+  border: var(--rule) solid var(--ink-line);
+  border-radius: var(--r-md);
+  box-shadow: var(--hard-sm);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    transform 70ms var(--ease-out),
+    box-shadow 70ms var(--ease-out),
+    background-color 120ms var(--ease-out);
+}
+
+.item:active {
+  transform: translate(2px, 2px);
+  box-shadow: none;
+}
+
+.item-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-1);
+}
+
+.item-name {
+  font-family: var(--font-display);
+  font-size: 16px;
+  line-height: 1.15;
+  -webkit-font-smoothing: none;
+}
+
+.item-meta {
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+.item-price {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.item-note {
+  font-size: 14px;
+}
+
+.badge .icon {
+  width: 10px;
+  height: 10px;
+}
+
+.item[aria-pressed="true"] {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+}
+
+.item:disabled {
+  color: var(--text-muted);
+  background-color: var(--bg-sunken);
+  border-color: var(--border-strong);
+  box-shadow: none;
+  transform: none;
+  cursor: not-allowed;
+}
+
+@media (hover: hover) {
+  .item[aria-pressed="false"]:not(:disabled):hover {
+    background-color: var(--bg-sunken);
+  }
+}
