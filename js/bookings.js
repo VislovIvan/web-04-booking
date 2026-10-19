@@ -1,7 +1,7 @@
 // «Мои брони»: записи по порядку дат и отмена с подтверждением на странице
 
 import { SLOTS } from './data.js';
-import { state, placeById, slotById, slotEnded, cancelBooking } from './store.js';
+import { state, placeById, slotById, slotEnded, cancelBooking, resetDemo } from './store.js';
 import { el, askInline } from './ui.js';
 import { formatDate, slotRange, rub, guestsText } from './format.js';
 
@@ -16,7 +16,23 @@ export function createBookings(root, { counter }) {
   const empty = root.querySelector('#bookingsEmpty');
   const status = root.querySelector('#bookingsStatus');
   const heading = root.querySelector('#bookingsTitle');
+  const reset = root.querySelector('#resetDemo');
+  const resetConfirm = root.querySelector('#resetConfirm');
   const rows = new Map();
+
+  reset.addEventListener('click', () => {
+    status.textContent = '';
+    askInline(resetConfirm, {
+      question: 'Удалить все брони и вернуть фильтры и дату по умолчанию?',
+      yes: 'Да, сбросить',
+      onYes: () => {
+        resetDemo();
+        status.textContent = 'Демо сброшено: броней нет, места свободны по демо-расписанию.';
+        heading.focus();
+      },
+      trigger: reset,
+    });
+  });
 
   function cancel(booking) {
     const removed = cancelBooking(booking.id);

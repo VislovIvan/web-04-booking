@@ -4,7 +4,7 @@ import { SLOTS } from './data.js';
 import {
   state, placeById, slotById, dayKeys, dayOpen, slotStarted, slotEnded, setSession, validate, book,
 } from './store.js';
-import { el } from './ui.js';
+import { el, setText } from './ui.js';
 import {
   rub, capacityText, slotHours, slotRange, slotRangeShort, shortDate, weekday, formatDate,
 } from './format.js';
@@ -30,16 +30,16 @@ export function createCard(root, { onBooked }) {
   const status = $('#formStatus');
 
   let shownDays = '';
-  let shownPlace = null;
+  // undefined, чтобы первая отрисовка прошла и без выбранного места
+  let shownPlace;
   let guestsTouched = false;
   // После брони кнопка ждёт новых данных: так двойное нажатие не создаст дубль
-  let lockKey = null;
+  let locked = null;
 
   const formKey = () => `${state.session.date}|${state.session.slot}|${state.selectedId}`;
 
   function unlock() {
-    if (lockKey === null) return;
-    lockKey = null;
+    locked = null;
     confirm.removeAttribute('aria-disabled');
     status.replaceChildren();
   }
@@ -58,7 +58,7 @@ export function createCard(root, { onBooked }) {
   slotSelect.append(...slotOptions);
 
   function setError(node, field, message = '') {
-    node.textContent = message;
+    setText(node, message);
     field?.setAttribute('aria-invalid', String(Boolean(message)));
   }
 
@@ -76,7 +76,7 @@ export function createCard(root, { onBooked }) {
 
   form.addEventListener('submit', (event) => {
     event.preventDefault();
-    if (lockKey !== null) return;
+    if (locked) return;
     guestsTouched = true;
     const place = placeById(state.selectedId);
     const { errors, booking } = book(guests.value);
@@ -88,7 +88,7 @@ export function createCard(root, { onBooked }) {
       else if (errors.slot) slotSelect.focus();
       return;
     }
-    lockKey = formKey();
+    locked = { key: formKey(), id: booking.id };
     confirm.setAttribute('aria-disabled', 'true');
     showSuccess(booking, place);
     onBooked(booking);
@@ -104,12 +104,12 @@ export function createCard(root, { onBooked }) {
   }
 
   function renderPlace(place) {
-    if ((place?.id ?? null) !== shownPlace) {
-      shownPlace = place?.id ?? null;
-      guests.value = '1';
-      guestsTouched = false;
-      setError(guestsError, guests);
-    }
+    const id = place?.id ?? null;
+    if (id === shownPlace) return;
+    shownPlace = id;
+    guests.value = '1';
+    guestsTouched = false;
+    setError(guestsError, guests);
     name.textContent = place ? place.name : 'Место не выбрано';
     meta.textContent = place
       ? `${place.type} · ${capacityText(place.seats)} · ${rub(place.price)} в час`
@@ -142,21 +142,22 @@ export function createCard(root, { onBooked }) {
     const group = Boolean(place && place.seats > 1);
     guests.disabled = !group;
     if (!group) guests.value = '1';
-    if (!place) guestsHint.textContent = 'Сначала выберите место.';
-    else guestsHint.textContent = group ? `От 1 до ${place.seats} человек.` : 'Место на одного человека.';
+    if (!place) setText(guestsHint, 'Сначала выберите место.');
+    else setText(guestsHint, group ? `От 1 до ${place.seats} человек.` : 'Место на одного человека.');
   }
 
   function renderTotal(place) {
     const slot = slotById(state.session.slot);
     const hours = slotHours(slot);
-    sum.textContent = rub(place ? place.price * hours : 0);
-    calc.textContent = place
+    setText(sum, rub(place ? place.price * hours : 0));
+    setText(calc, place
       ? `${rub(place.price)} × ${hours} ч, ${slot.name.toLowerCase()} ${slotRange(slot)}`
-      : 'Сумма появится после выбора места.';
+      : 'Сумма появится после выбора места.');
   }
 
   function update() {
-    if (lockKey !== null && formKey() !== lockKey) unlock();
+    // Разблокировка: изменились место, день или слот, либо бронь уже отменили
+    if (locked && (formKey() !== locked.key || !state.bookings.some((item) => item.id === locked.id))) unlock();
     const place = placeById(state.selectedId);
     renderPlace(place);
     renderSession(new Date());

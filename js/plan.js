@@ -2,7 +2,7 @@
 
 import { PLACES } from './data.js';
 import { state, matchesFilters, placeStatus, slotById, toggleSelect, clearSelection } from './store.js';
-import { el, statusContent } from './ui.js';
+import { el, statusContent, setText } from './ui.js';
 import { formatDate, rub, slotRange } from './format.js';
 
 export function createPlan({ layer, caption, empty }) {
@@ -50,7 +50,7 @@ export function createPlan({ layer, caption, empty }) {
     }
     empty.hidden = shown > 0;
     const slot = slotById(state.session.slot);
-    caption.textContent = `Занятость на ${formatDate(state.session.date)}, ${slot.name.toLowerCase()} ${slotRange(slot)}: свободно ${free} из ${shown}.`;
+    setText(caption, `Занятость на ${formatDate(state.session.date)}, ${slot.name.toLowerCase()} ${slotRange(slot)}: свободно ${free} из ${shown}.`);
   }
 
   return { update };

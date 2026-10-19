@@ -1,8 +1,9 @@
-// Состояние приложения: сеанс, выбор, фильтры и брони
+// Состояние приложения: сеанс, выбор, фильтры, брони и их хранение
 
 import { PLACES, SLOTS, DAYS_AHEAD } from './data.js';
 import { dateKey, parseKey, addDays, slotHours } from './format.js';
 
+const STORAGE_KEY = 'cowork42.v1';
 const DEFAULT_FILTERS = { seats: 1, price: 0 };
 
 export const state = {
@@ -12,6 +13,8 @@ export const state = {
   bookings: [],
   // Счётчик номеров: после отмены номер не переиспользуется
   seq: 0,
+  // blocked: браузер не даёт сохранять; damaged: 'all' или число пропущенных записей
+  storage: { blocked: false, damaged: null },
 };
 
 const listeners = new Set();
@@ -115,12 +118,25 @@ export function clearSelection() {
   emit();
 }
 
-// Смена дня или слота; на сегодня начавшийся слот меняется на ближайший открытый
+// Сеанс с поправкой: на сегодня начавшийся слот меняется на ближайший открытый
+function openSession(date, slot, now) {
+  if (!dayKeys(now).includes(date) || !dayOpen(date, now) || !slotById(slot)) return null;
+  if (!slotStarted(date, slot, now)) return { date, slot };
+  return { date, slot: SLOTS.find((item) => !slotStarted(date, item.id, now)).id };
+}
+
 export function setSession({ date = state.session.date, slot = state.session.slot }) {
+  const next = openSession(date, slot, new Date());
+  if (!next) return;
+  state.session = next;
+  save();
+  emit();
+}
+
+// Раз в полминуты: прошедшие слоты гаснут, после полуночи сдвигается список дней
+export function refresh() {
   const now = new Date();
-  if (!dayKeys(now).includes(date) || !dayOpen(date, now) || !slotById(slot)) return;
-  const open = slotStarted(date, slot, now) ? SLOTS.find((item) => !slotStarted(date, item.id, now)).id : slot;
-  state.session = { date, slot: open };
+  if (!dayKeys(now).includes(state.session.date)) state.session = firstOpenSession(now);
   emit();
 }
 
@@ -183,6 +199,7 @@ export function book(guestsRaw) {
   };
   state.bookings.push(booking);
   state.selectedId = null;
+  save();
   emit();
   return { booking };
 }
@@ -191,6 +208,85 @@ export function cancelBooking(id) {
   const booking = state.bookings.find((item) => item.id === id);
   if (!booking) return null;
   state.bookings = state.bookings.filter((item) => item !== booking);
+  save();
   emit();
   return booking;
+}
+
+// Сброс демо: удаляем только свой ключ, остальной localStorage не трогаем
+export function resetDemo() {
+  try {
+    localStorage.removeItem(STORAGE_KEY);
+  } catch {
+    state.storage.blocked = true;
+  }
+  state.storage.damaged = null;
+  state.bookings = [];
+  state.seq = 0;
+  state.selectedId = null;
+  state.filters = { ...DEFAULT_FILTERS };
+  state.session = firstOpenSession();
+  emit();
+}
+
+// ── Хранение ─────────────────────────────────────────────
+
+function save() {
+  try {
+    const data = { seq: state.seq, session: state.session, bookings: state.bookings };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  } catch {
+    state.storage.blocked = true;
+  }
+}
+
+const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
+
+function validBooking(item) {
+  const place = placeById(item?.placeId);
+  return (
+    Boolean(place && slotById(item.slot)) &&
+    typeof item.id === 'string' && /^К42-\d{4,}$/.test(item.id) &&
+    typeof item.date === 'string' && DATE_PATTERN.test(item.date) && dateKey(parseKey(item.date)) === item.date &&
+    Number.isInteger(item.guests) && item.guests >= 1 && item.guests <= place.seats &&
+    Number.isFinite(item.total) && item.total > 0
+  );
+}
+
+// Чтение при запуске: битый JSON и битые записи не ломают страницу
+export function load(now = new Date()) {
+  state.session = firstOpenSession(now);
+  let raw = null;
+  try {
+    raw = localStorage.getItem(STORAGE_KEY);
+  } catch {
+    state.storage.blocked = true;
+  }
+  if (raw === null) return;
+
+  let data;
+  try {
+    data = JSON.parse(raw);
+  } catch {
+    data = null;
+  }
+  if (!Array.isArray(data?.bookings)) {
+    state.storage.damaged = 'all';
+    return;
+  }
+
+  const taken = new Set();
+  for (const item of data.bookings) {
+    const key = validBooking(item) && `${item.placeId}|${item.date}|${item.slot}`;
+    if (!key || taken.has(key) || taken.has(item.id)) continue;
+    taken.add(key).add(item.id);
+    const { id, placeId, date, slot, guests, total } = item;
+    state.bookings.push({ id, placeId, date, slot, guests, total });
+  }
+  const skipped = data.bookings.length - state.bookings.length;
+  if (skipped > 0) state.storage.damaged = skipped;
+
+  const lastNumber = Math.max(0, ...state.bookings.map((item) => Number(item.id.slice(4))));
+  state.seq = Number.isInteger(data.seq) && data.seq >= lastNumber ? data.seq : lastNumber;
+  state.session = openSession(data.session?.date, data.session?.slot, now) ?? state.session;
 }

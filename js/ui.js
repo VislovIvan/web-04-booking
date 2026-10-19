@@ -10,6 +10,11 @@ export function el(tag, className, text) {
   return node;
 }
 
+// Текст меняем, только если он другой: живые области не повторяют одно и то же
+export function setText(node, text) {
+  if (node.textContent !== text) node.textContent = text;
+}
+
 const SVG_NS = 'http://www.w3.org/2000/svg';
 
 // Значок из спрайта в index.html
@@ -79,7 +84,11 @@ export function askInline(host, { question, yes, onYes, trigger }) {
     trigger.hidden = false;
     trigger.focus();
   };
-  yesButton.addEventListener('click', onYes);
+  yesButton.addEventListener('click', () => {
+    host.replaceChildren();
+    trigger.hidden = false;
+    onYes();
+  });
   noButton.addEventListener('click', close);
   host.onkeydown = (event) => {
     if (event.key === 'Escape') close();

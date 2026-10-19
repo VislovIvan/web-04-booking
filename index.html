@@ -33,6 +33,7 @@
       <h1 id="pageTitle">Забронируйте место</h1>
       <p class="lead">Открытые столы, кабина для созвонов и две переговорные на одном этаже. Выберите день, время и место на плане.</p>
       <p class="demo-note"><span class="label">Учебное демо:</span> бронирования сохраняются только в этом браузере</p>
+      <p class="notice notice-error storage-notice" id="storageNotice" role="alert"></p>
     </section>
 
     <section class="controls" aria-label="День, время и фильтры">
@@ -164,7 +165,9 @@
       <section class="bookings-section" id="bookings" aria-labelledby="bookingsTitle">
         <div class="section-head">
           <h2 id="bookingsTitle" tabindex="-1">Мои брони</h2>
+          <button class="btn btn-sm" type="button" id="resetDemo">Сбросить демо</button>
         </div>
+        <div class="confirm-row reset-confirm" id="resetConfirm"></div>
         <p class="notice notice-ok bookings-status" id="bookingsStatus" role="status"></p>
         <ol class="booking-list" id="bookingList"></ol>
         <p class="notice" id="bookingsEmpty">Броней пока нет. Выберите место, время и нажмите «Подтвердить бронь».</p>

@@ -49,6 +49,10 @@
   font-size: 30px;
 }
 
+.storage-notice:empty {
+  display: none;
+}
+
 .lead {
   max-width: 640px;
   font-size: 16px;
@@ -879,4 +883,12 @@
   flex-basis: 100%;
   font-size: 14px;
   font-weight: 600;
+}
+
+.reset-confirm:not(:empty) {
+  margin: 0 0 var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  background: var(--bg-raised);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-md);
 }
